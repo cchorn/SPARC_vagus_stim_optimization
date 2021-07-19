@@ -17,7 +17,12 @@ if length(varargin)>3
     hold on
     thresh_line = linspace(threshold,threshold,length(Vrms_time));
     plot(Vrms_time,thresh_line,'-r','LineWidth', 1);
-    [max_val, max_idx] = find_peaks(Vrms_list(rms_offset:end-rms_offset),threshold, Fs, 0.030);
+    if length(varargin)>7
+        bin_range = varargin{8};
+    else
+        bin_range = 0.05;
+    end
+    [max_val, max_idx] = find_peaks(Vrms_list(rms_offset:end-rms_offset),threshold, Fs, bin_range);
     if ~isempty(max_idx)
         if max_val > threshold
             for i=1:length(max_val)

@@ -17,8 +17,8 @@ dataChannel = 130;   % A-1 starts at 1, A-2 starts at 33,
                    
 plotStatus = true; % Whether or not to plot the data
 
-
-completeFilePath = 'Z:\data_raw\cat\2016\HA04 - 20161109\Grapevine\datafile0034.nev';
+completeFilePath = 'C:\Users\saraz\Downloads\F22-19\Trellis\datafile0007.nev';
+%completeFilePath = 'Z:\data_raw\cat\2016\HA04 - 20161109\Grapevine\datafile0034.nev';
 
 % Open the file and extract some basic information
 [ns_status, hFile] = ns_OpenFile(completeFilePath); 

@@ -7,7 +7,8 @@ all_bin_peaks=false; %enable to collect all threshold crossing peaks of the sign
 
 spike_amp_t = [];
 spike_amp_data = [];
-bin_size = bin_time*fs/10;
+bin_size = bin_time*10;
+%bin_size = bin_time*fs/10;
 
 % Find all the points in the signal where the signal crosses threshold
 % which amount to detecting a spike.
