@@ -34,12 +34,25 @@ plot_RMS_chan   = false;
 plot_RMS_all_chans = false;
 plot_hist = false;
 
-verbose = true; % enable to see trial channel responses to stim expressed on command line
+verbose = false; % enable to see trial channel responses to stim expressed on command line
 
 STA_t_min   = -2;
 STA_t_max   = 498;
 fs = 30e3;
-rms_offset = 13; %in step counts for RMS, actually 13 milliseconds taking into consideration the -2 startpoint
+bim_time = 50;
+
+exp_data = expmt_list{expmt};
+expmt_list{expmt}.selectivityGrid = []; % overwrite previous values
+[N_channels, N_trials] = size(avg_signal_data);
+sub_size = numSubplots(N_channels);
+cohort = exp_data.cohort;
+fprintf(['\nAnimal ',cohort,'\n'])
+
+%rms_offset = 5; % 5-4-21 trying shorted rms offset to catch a beta fiber CV
+rms_offset_t = (1000*expmt_list{expmt}.nerve_length/30); % 5/4/21 - rms_offset now set to time index at 30m/s per animal
+fprintf("rms offset: %f\n", rms_offset_t);
+%rms_offset = 15; %in step counts for RMS, actually 13 milliseconds taking into consideration the -2 startpoint
+fprintf("analyzing...")
 
 % Custom array for displaying channel outputs in appropriate subplots to
 % match Utah MEA chnanel configuration on screen
@@ -53,10 +66,6 @@ elec_chan_map = [...
     7, 15, 23, 31,...
     8, 16, 24, 32];
 
-exp_data = expmt_list{expmt};
-expmt_list{expmt}.selectivityGrid = []; % overwrite previous values
-[N_channels, N_trials] = size(avg_signal_data);
-sub_size = numSubplots(N_channels);
 
 %conductVel = nan(1,length(N_channels));
 %sub_size = numSubplots(N_channels);
@@ -76,11 +85,10 @@ skip_channels = expmt_list{expmt,1}.exclude_channels;
 % Get period of data actually being evaluated (with respect
 % to the offset) so we don't analyze portions of the signal
 % affected by the stim events
-rms_offset = (abs(STA_t_min) + rms_offset)*10;
+%rms_offset = (abs(STA_t_min) + rms_offset)*10;
+
 
 if verbose==true
-    cohort = exp_data.cohort;
-    fprintf(['\nAnimal ',cohort,'\n'])
     std_gain = expmt_list{expmt}.std_gain;
     windowSize=30;
     stepSize=3;
@@ -92,10 +100,11 @@ end
 for trial=1:N_trials
     
     if ismember(trial,skip_trials)==false
-
+        
         session = find_session(expmt_list, expmt, trial);
         ses_trial = find_trial(expmt_list, expmt, trial);
         pw = find_pw(exp_data, trial);
+        stim = expmt_list{expmt}.stim_hist(session,ses_trial);
         
         % Graphic update in command window showing what electrode is being analyzed and plotted
         if verbose==true
@@ -117,12 +126,35 @@ for trial=1:N_trials
                 % Get the rms of the signal
                 [Vrms_list, Vrms_time] = getRmsData(STA_data, 1);
                 
+                % Adjust RMS offset time
+                rms_offset_t = find(Vrms_time<=1000*expmt_list{expmt,1}.nerve_length/30);
+                temp_rms_offset = rms_offset_t(end)+1;
+                
+                % In case an artifact is still in signal but close to being within
+                % offset, move window
+                if expmt_list{expmt,1}.manual_rms_offset(chan,trial)==true
+                    % now into sample space
+                    rms_offset = temp_rms_offset+30;% 30 samples == 3ms
+                    if length(varargin)>4 && varargin{5}==true
+                        % extra offset towards end of signal in case stim artifacts exist (needed for F21-19 Trial49)
+                        rms_end_offset = round(varargin{6}*10);
+                    else
+                        rms_end_offset = 0;
+                    end
+                    
+                else
+                    rms_offset = temp_rms_offset;
+                end
+                
+                if trial==49
+                    a=1;
+                end
                 % Get response threshold for channel
                 N_data = length(Vrms_list);
                 [threshold, ~] = getResponseThreshold(expmt_list, expmt, baseline, trial, chan, N_data);
                 
                 %Detect response behavior for signal input and collect response times for conduction velocities
-                [crossed, ~, ~, time_bins, resp_bins] = response_detection(exp_data, threshold, Vrms_list, Vrms_time, rms_offset);
+                [crossed, max_val, max_idx, time_bins, resp_bins] = response_detection(exp_data, threshold, Vrms_list, Vrms_time, rms_offset, bim_time, true, rms_end_offset);
                 
                 % Save time bin responses because they record CV in steps of 0.5m/s
                 expmt_list{expmt}.cv(chan,trial).time_bins = time_bins;
@@ -165,7 +197,8 @@ for trial=1:N_trials
                 end
                 prompt_bits=0;
                 if plot_RMS_chan==true
-                    
+                    windowSize = 300;
+                    stepSize=30;
                     fig_title = ['Chan ', num2str(chan), ' Trial ', num2str(trial),' RMS Window ', num2str(windowSize/0.03), ' us, step ',num2str(stepSize/0.03),' us'];
                     plot_RMS_figure(Vrms_list, Vrms_time, fig_title, threshold, rms_offset, resp_bins, time_bins);
                     %plot_RMS_and_data_figure(); % for showing both STA and RMS side-by-side
@@ -194,9 +227,9 @@ for trial=1:N_trials
                     end
                     
                 end
-                if plot_RMS_all_chans == true
-                    titleName = sprintf('Trial %d PW%sus RMS Window %d us, step %.3g us', trial, num2str(pw*1000), windowSize/0.03, stepSize/0.03);
-                    plot_RMS_grid(Vrms_list, Vrms_time, titleName, chan, threshold, rms_offset);
+                if plot_RMS_all_chans==true
+                    titleName = sprintf('Trial %d PW%dus %duA RMS Window %d us, step %.3g us', trial, pw*1000, stim, windowSize/0.03, stepSize/0.03);
+                    plot_RMS_grid(Vrms_list, Vrms_time, titleName, chan, threshold, rms_offset, 0.2);
                 end
                 
                 

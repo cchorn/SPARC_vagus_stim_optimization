@@ -142,8 +142,8 @@ for chan_num = 1:32
             %window-averages data, then calculates mean and STD
             temp = cell2mat(arrayfun(@(x) no_stim_data(x:(x+window_size)), no_stim_Idx,'UniformOutput',false)');
             
-            % As a precaution remove any remaining artifacts in signal
-            [snipData, ~] = remove_artifacts(temp,-300);
+            % As a precaution remove any remaining artifacts in signal (no longer needed)
+            %[snipData, ~] = remove_artifacts(temp,-300);
             
             avg_chanData = mean(snipData);
             baseline{expmt,1}.(['Chan_',num2str(chan_num)]).std_trials(trial) = std(avg_chanData);
