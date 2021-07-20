@@ -255,6 +255,8 @@ for expmt=2:length(SI_combos_list) % for each animal
                 end
                 
                 % plot chan response data as grid
+
+                %if plot_grid==true && pw_1_2==0.5 && pw_3_4==0.5 for specific pulse width
                 if (plot_grid==true && ((pw_1_2==0.1 && pw_3_4==0.1)||(pw_1_2==0.5 && pw_3_4==0.5)||(pw_1_2==1 && pw_3_4==1)))
                     for i=1:size(temp_stim_data,1)
                         new_temp_stim_data = temp_stim_data;
@@ -265,23 +267,30 @@ for expmt=2:length(SI_combos_list) % for each animal
                             num2str(new_temp_stim_data(i,3)),'Thr'];
                         
                         plot_response_grid(grid_1_2_chans(i,:), grid_3_4_chans(i,:),fig_title);
+                        a=input('Continue? (Enter)');
                     end
                 end
                 % Plot channel responses with classifier or grouping
                 if (plot_fig==true && ((pw_1_2==0.1 && pw_3_4==0.1)||(pw_1_2==0.5 && pw_3_4==0.5)||(pw_1_2==1 && pw_3_4==1)))
-                    fig_title = [expmt_list{expmt}.cohort,' Cuff 1-2 PW ', num2str(pw_1_2*1000),...
-                        'us vs Cuff 3-4 PW ', num2str(pw_3_4*1000), 'us',' Shared Response'];
-                    try 
-                    
+                    fig_title = [expmt_list{expmt}.cohort,' 1-2 PW ', num2str(pw_1_2*1000),...
+                        'us vs 3-4 PW ', num2str(pw_3_4*1000), 'us',' Shared Response'];
+                    try
+                        % Show with all response data
+                        fig_title = ['F',expmt_list{expmt}.cohort,' 1-2 PW', num2str(pw_1_2*1000),...
+                            'us vs 3-4 PW', num2str(pw_3_4*1000), 'us',' Shared Response'];
+                        
                         selective_classifier(temp_stim_data, selectivity_labels, animal_names,...
                             fig_title, 'threshold', minthresh_stim, true, true, chan_txt);
-                    
-                        selective_classifier(temp_stim_data_3chan, selectivity_labels_3chan, animal_names_3chan,...
-                            fig_title, 'threshold', minthresh_stim_3chan, true, true, chan_txt_3chan);
-                    
-                    
                         selective_plotter(temp_stim_data, combo_temp(:,15), fig_title, 'color', 'amp', minthresh_stim)
                         
+                        a=input('Continue? (Enter)');
+                        
+                        % Show only 90% selective responses
+                        fig_title = ['F',expmt_list{expmt}.cohort,' 1-2 PW', num2str(pw_1_2*1000),...
+                            'us vs 3-4 PW', num2str(pw_3_4*1000), 'us',' Shared Response 90% Selectivity'];
+                        
+                        selective_classifier(temp_stim_data_3chan, selectivity_labels_3chan, animal_names_3chan,...
+                            fig_title, 'threshold', minthresh_stim_3chan, true, true, chan_txt);                       
                         selective_plotter(temp_stim_data_3chan, combo_temp_3chan(:,15), fig_title, 'color', 'amp', minthresh_stim)
                     catch ME
                         disp('Error Message:')
@@ -295,7 +304,7 @@ for expmt=2:length(SI_combos_list) % for each animal
         k = k + 1;
     end
 end
-
+close all;
 %--------------------------------------------------------------------
 % Display all the PW data across all animals
 %--------------------------------------------------------------------

@@ -1,7 +1,7 @@
 function min_thresh_plot(expmt_list)
 
 rec_path = 'C:\Users\shulgac\Documents\MATLAB\Data';
-close all;
+%close all;
 save_fig2 = false;
 x_offset = 20;
 y_offset = 20;
@@ -9,13 +9,13 @@ rheo1_list = [];
 rheo2_list = [];
 chronax1_list = [];
 chronax2_list = [];
-plot_min_thresh = false;
+plot_min_thresh = true;
 
 for expmt=1:length(expmt_list) % for each day
     disp(expmt)
     exp_data = expmt_list{expmt};
     if plot_min_thresh==true
-        fig(expmt) = figure;
+        fig(expmt) = figure(expmt+10);
     end
     file_directory = [rec_path, '\F', expmt_list{expmt,1}.cohort];
     
@@ -41,7 +41,7 @@ for expmt=1:length(expmt_list) % for each day
         % fit line conditions
         x = 0:1:3000;
         lb = [0];
-        ub = [];
+        ub = [430];
         modelfun = @(b,xdata) b(1) + b(2)./xdata;
         x0 = [500,200];
         if plot_min_thresh==true

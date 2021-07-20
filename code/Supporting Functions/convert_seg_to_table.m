@@ -5,7 +5,7 @@ function [new_signal_data, avg_signal_data] = convert_seg_to_table(expmt_list, e
 %   formatas well as a cell table of STA values
 %
 %   Written by: Jonathan Shulgach
-%   Last updated: 8/5/2020
+%   Last updated: 9/15/2020
 %
 %   INPUTS
 %   ===================================================================
@@ -44,9 +44,7 @@ for skip_col=skip_trials
     end
 end
 new_signal_data = raw_signal_data;
-%[new_signal_data, ~, ~] = replace_missing_data_packets(raw_signal_data, 1050);
-%[new_signal_data, ~] = remove_artifacts(raw_signal_data,150);
-% Get averages from data snippets and create new cell matrix
+
 fprintf("Averaging Signal | Trial: ")
 for trial=1:size(new_signal_data,2)
     fprintf([num2str(trial),'|'])

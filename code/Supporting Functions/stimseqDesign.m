@@ -55,11 +55,11 @@ function [] = stimseqDesign(cathElec, anodElec, cathAmp_uA, preQuietT_s, stimT_s
     %   stimseqDesign(1, 2, 1000, 10, 2*60, 5*60, 20, 0.1);
     %   stimseqDesign(1, 2, 1000, 10, 2*60, 5*60, 30, 0.1);
     
-    DEFINE_CONSTANTS
+    %DEFINE_CONSTANTS
     digTrigger_enable = false;
     digTrigger_chan   = 1;
     stimFE = 'B';
-    END_DEFINE_CONSTANTS
+    %END_DEFINE_CONSTANTS
     
     [cathAmp_step, stimRes] = getStimSteps(cathAmp_uA);
     
@@ -73,12 +73,13 @@ function [] = stimseqDesign(cathElec, anodElec, cathAmp_uA, preQuietT_s, stimT_s
         elecShift = 384;
     end
     
-    status = xippmex;
+    status=1;
+    %status = xippmex;
     if status == 0
         error('We have a problem...You dont say?')
     end
-    xippmex('stim', 'enable',0)
-    xippmex('digout',4,0)
+    %xippmex('stim', 'enable',0)
+    %xippmex('digout',4,0)
     
     if digTrigger_enable
         xippmex('digout', digTrigger_chan, 0);
@@ -90,11 +91,11 @@ function [] = stimseqDesign(cathElec, anodElec, cathAmp_uA, preQuietT_s, stimT_s
     nano_anod = elecShift+[((anodElec-1)*shortedChans+1):anodElec*shortedChans];
     
     stimElectrodes = [nano_cath, nano_anod];
-    if xippmex('stim','res',stimElectrodes) ~= stimRes
-        xippmex('stim','res',stimElectrodes, stimRes);
-        pause(1)
-    end
-    xippmex('stim', 'enable',1)
+    %if xippmex('stim','res',stimElectrodes) ~= stimRes
+    %    xippmex('stim','res',stimElectrodes, stimRes);
+    %    pause(1)
+    %end
+    %xippmex('stim', 'enable',1)
     
     time_period_samples = 1/freq*30e3;
     phase_step = phaseDur_ms*1e-3*30e3;
@@ -132,14 +133,14 @@ function [] = stimseqDesign(cathElec, anodElec, cathAmp_uA, preQuietT_s, stimT_s
         pause(1)
     else
         disp('Starting trial. Verify that remote control is enabled')
-        xippmex('trial', 'recording');
+    %    xippmex('trial', 'recording');
     end
     
     disp('Pre-stim quiet recording')
     pause(preQuietT_s)
     
     disp('starting stim')
-    xippmex('digout',4,1)
+    %xippmex('digout',4,1)
     for iLoop = 1:numLoops
         for iCmd = 1:length(cmd)
             cmd(iCmd).repeats = repeatsMat(iLoop);

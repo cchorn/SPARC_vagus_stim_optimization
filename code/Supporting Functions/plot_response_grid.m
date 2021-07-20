@@ -25,22 +25,33 @@ elec_chan_map = [...
     8, 16, 24, 32];
 
 for chan=1:N_electrodes
-    figure(10)
-    grid_fig = subplot(sub_size(1),sub_size(2), elec_chan_map(chan));
-    sgtitle(fig_title);
+    figure(10);
+    set(gcf,'Position',[200 400 1000 500]);
+    %grid_fig = subplot(sub_size(1),sub_size(2), elec_chan_map(chan));
+    title(fig_title);
+    hold on;
+    %sgtitle(fig_title);
+    
+    %drawing squares like this...
+    x_start = ceil(chan/4)-1;
+    x_end = 1;%ceil(chan/4)+1;    
+    y_start = 4 - mod(chan-1,4);
+    y_end = 1;%5 - mod(chan,4);
+       
     if resp_grid_1(chan)==1 && resp_grid_2(chan)==0
-        rectangle('Position',[0,0,2,2],'FaceColor','r','EdgeColor','k','LineWidth',3)
+        rectangle('Position',[x_start,y_start,x_end,y_end],'FaceColor','r','EdgeColor','k','LineWidth',3)
     elseif resp_grid_1(chan)==0 && resp_grid_2(chan)==1
-        rectangle('Position',[0,0,2,2],'FaceColor','b','EdgeColor','k','LineWidth',3)
+        rectangle('Position',[x_start,y_start,x_end,y_end],'FaceColor','b','EdgeColor','k','LineWidth',3)
     elseif resp_grid_1(chan)==1 && resp_grid_2(chan)==1
-        rectangle('Position',[0,0,2,2],'FaceColor','.5 0 .5','EdgeColor','k','LineWidth',3)
+        rectangle('Position',[x_start,y_start,x_end,y_end],'FaceColor','.5 0 .5','EdgeColor','k','LineWidth',3)
     else
-        rectangle('Position',[0,0,2,2],'FaceColor','w','EdgeColor','k','LineWidth',3)
+        rectangle('Position',[x_start,y_start,x_end,y_end],'FaceColor','w','EdgeColor','k','LineWidth',3)
     end
     set(gca,'XTick',[])
     set(gca,'YTick',[])
-
 end
+hold off;
+
 drawnow;
 %a=input('next combo: ');
 end
