@@ -143,6 +143,8 @@ min_thresh_plot(expmt_list)
 % Generate cv figures showing response behavior at max stim and cuff
 % threshold
 [cv_min_data, cv_max_data] = get_conduction_velocity(expmt_list, 2:7, true);
+cv_table = organize_cv_table(expmt_list, cv_min_data);
+
 
 
 %%======================================================================
